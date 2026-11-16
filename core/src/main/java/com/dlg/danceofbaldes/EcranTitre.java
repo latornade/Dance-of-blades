@@ -1,6 +1,7 @@
 package com.dlg.danceofbaldes;
 
 import com.badlogic.gdx.ScreenAdapter;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.controllers.Controller;
 import com.badlogic.gdx.controllers.Controllers;
 import com.badlogic.gdx.utils.ScreenUtils;
@@ -10,6 +11,8 @@ import java.awt.*;
 
 public class EcranTitre extends ScreenAdapter {
     final DanceOfBlades game;
+
+    BitmapFont font;
 
     int chosenSlot;
 
@@ -23,6 +26,7 @@ public class EcranTitre extends ScreenAdapter {
 
     public EcranTitre(DanceOfBlades gameP) {
         this.game = gameP;
+        font = new BitmapFont();
     }
 
     @Override

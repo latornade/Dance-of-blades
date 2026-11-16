@@ -17,6 +17,7 @@ public class EcranMap extends ScreenAdapter {
 
     public EcranMap(DanceOfBlades gameP) {
         this.game = gameP;
+        perso = new Texture("perso.png");
     }
 
     @Override
@@ -31,5 +32,13 @@ public class EcranMap extends ScreenAdapter {
             if(Math.abs(Xaxis) > 0.15f) charactX += Xaxis * speed;
             if(Math.abs(Yaxis) > 0.15f) charactY -= Yaxis * speed;
         }
+        game.batch.begin();
+        game.batch.draw(perso, charactX, charactY);
+        game.batch.end();
+    }
+
+    @Override
+    public void dispose() {
+        perso.dispose();
     }
 }
