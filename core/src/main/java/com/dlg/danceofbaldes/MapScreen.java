@@ -7,7 +7,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.utils.ScreenUtils;
 
-public class EcranMap extends ScreenAdapter {
+public class MapScreen extends ScreenAdapter {
     final DanceOfBlades game;
 
     Texture perso;
@@ -15,7 +15,7 @@ public class EcranMap extends ScreenAdapter {
     float charactY = 100f;
     float speed = 5f;
 
-    public EcranMap(DanceOfBlades gameP) {
+    public MapScreen(DanceOfBlades gameP) {
         this.game = gameP;
         perso = new Texture("perso.png");
     }

@@ -1,12 +1,7 @@
 package com.dlg.danceofbaldes;
 
-import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Game;
-import com.badlogic.gdx.controllers.Controller;
-import com.badlogic.gdx.controllers.Controllers;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.utils.ScreenUtils;
 
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
 public class DanceOfBlades extends Game {
@@ -15,7 +10,7 @@ public class DanceOfBlades extends Game {
     @Override
     public void create() {
         batch = new SpriteBatch();
-        this.setScreen(new EcranTitre(this));
+        this.setScreen(new TitleScraan(this));
     }
 
     @Override

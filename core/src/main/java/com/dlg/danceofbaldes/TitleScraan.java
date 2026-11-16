@@ -7,9 +7,7 @@ import com.badlogic.gdx.controllers.Controllers;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.graphics.Color;
 
-import java.awt.*;
-
-public class EcranTitre extends ScreenAdapter {
+public class TitleScraan extends ScreenAdapter {
     final DanceOfBlades game;
 
     BitmapFont font;
@@ -24,7 +22,7 @@ public class EcranTitre extends ScreenAdapter {
     boolean rStickCenterX;
     boolean rStickCenterY;
 
-    public EcranTitre(DanceOfBlades gameP) {
+    public TitleScraan(DanceOfBlades gameP) {
         this.game = gameP;
         font = new BitmapFont();
     }
@@ -65,7 +63,7 @@ public class EcranTitre extends ScreenAdapter {
 
             if (Math.abs(axeXGauche) < 0.2f) lStickCenterX = true;
             else if (lStickCenterX && axeXGauche > 0.5f) {
-                game.setScreen(new EcranMap(game));
+                game.setScreen(new MapScreen(game));
             } else if (lStickCenterX && axeXGauche < -0.5f) {
                 chosenSlot = 1;
                 lStickCenterX = false;
