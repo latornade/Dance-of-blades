@@ -7,7 +7,7 @@ import com.badlogic.gdx.controllers.Controllers;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.graphics.Color;
 
-public class TitleScraan extends ScreenAdapter {
+public class TitleScreen extends ScreenAdapter {
     final DanceOfBlades game;
 
     BitmapFont font;
@@ -22,7 +22,7 @@ public class TitleScraan extends ScreenAdapter {
     boolean rStickCenterX;
     boolean rStickCenterY;
 
-    public TitleScraan(DanceOfBlades gameP) {
+    public TitleScreen(DanceOfBlades gameP) {
         this.game = gameP;
         font = new BitmapFont();
     }

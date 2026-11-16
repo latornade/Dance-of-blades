@@ -10,7 +10,7 @@ public class DanceOfBlades extends Game {
     @Override
     public void create() {
         batch = new SpriteBatch();
-        this.setScreen(new TitleScraan(this));
+        this.setScreen(new TitleScreen(this));
     }
 
     @Override
