@@ -1,10 +1,13 @@
 package com.dlg.danceofbaldes;
 
+import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.controllers.Controllers;
 import com.badlogic.gdx.controllers.Controller;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.ScreenAdapter;
+import com.badlogic.gdx.utils.ScreenUtils;
 
 public class CombatScreen extends ScreenAdapter {
     final DanceOfBlades game;
@@ -35,10 +38,12 @@ public class CombatScreen extends ScreenAdapter {
         this.music = musicP;
         this.beatTime = 60f / bpm;
         this.game = gameP;
+        this.charactexture = new Texture("perso.png");
     }
 
     @Override
     public void render(float delta) {
+        ScreenUtils.clear(Color.SALMON);
         musicTimer += delta;
         if (musicTimer >= beatTime) {
             musicTimer -= beatTime;
@@ -50,7 +55,7 @@ public class CombatScreen extends ScreenAdapter {
             lStickX = ctrlr.getAxis(ctrlr.getMapping().axisLeftX);
             lStickY = ctrlr.getAxis(ctrlr.getMapping().axisLeftY);
 
-            if (rStickCentered && Math.abs(rStickX) > 0.5f && currentAction.isEmpty()) {
+            if (rStickCentered && Math.abs(rStickX) > 0.2f && (currentAction.isEmpty() || actionTimer < 0.15f)) {
                 rStickCentered = false;
 
                 float rStickDir = Math.signum(rStickX);
@@ -59,7 +64,7 @@ public class CombatScreen extends ScreenAdapter {
                 startX = playerX;
                 actionTimer = beatTime;
 
-                if (Math.abs(lStickX) > 0.5f) {
+                if (Math.abs(lStickX) > 0.2f) {
                     if (rStickDir == lStickDir) {
                         currentAction = "THROW";
                         targetX = startX + (150f * rStickDir);
@@ -94,5 +99,8 @@ public class CombatScreen extends ScreenAdapter {
                 lStickCentered = false;
             }
         }
+        game.batch.begin();
+        game.batch.draw(charactexture, playerX, playerY);
+        game.batch.end();
     }
 }
