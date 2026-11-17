@@ -7,9 +7,12 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.ScreenAdapter;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.Gdx;
 
 public class CombatScreen extends ScreenAdapter {
+    Music bgm;
 
     ActionType queuedAction = ActionType.IDLE;
     float queuedTargetX = 0f;
@@ -20,7 +23,6 @@ public class CombatScreen extends ScreenAdapter {
     float bpm;
     float beatTime;
     float musicTimer = 0f;
-    String music;
 
     float actionDuration;
 
@@ -41,7 +43,10 @@ public class CombatScreen extends ScreenAdapter {
 
     public CombatScreen(DanceOfBlades gameP, float bpmP, String musicP) {
         this.bpm = bpmP;
-        this.music = musicP;
+        this.bgm = Gdx.audio.newMusic(Gdx.files.internal(musicP + ".mp3"));
+        this.bgm.setLooping(true);
+        this.bgm.setVolume(0.5f);
+        this.bgm.play();
         this.beatTime = 60f / bpm;
         this.game = gameP;
         this.charactexture = new Texture("perso.png");
@@ -222,6 +227,7 @@ public class CombatScreen extends ScreenAdapter {
     @Override
     public void dispose() {
         charactexture.dispose();
+        bgm.dispose();
         super.dispose();
     }
 }
