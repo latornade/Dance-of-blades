@@ -1,11 +1,11 @@
 package com.dlg.danceofbaldes;
 
-import com.badlogic.gdx.ScreenAdapter;
-import com.badlogic.gdx.controllers.Controller;
 import com.badlogic.gdx.controllers.Controllers;
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.controllers.Controller;
 import com.badlogic.gdx.utils.ScreenUtils;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.ScreenAdapter;
 
 public class MapScreen extends ScreenAdapter {
     final DanceOfBlades game;
