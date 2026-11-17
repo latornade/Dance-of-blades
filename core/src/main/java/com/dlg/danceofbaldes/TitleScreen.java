@@ -1,11 +1,11 @@
 package com.dlg.danceofbaldes;
 
-import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.controllers.Controller;
 import com.badlogic.gdx.controllers.Controllers;
+import com.badlogic.gdx.controllers.Controller;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.ScreenAdapter;
 
 public class TitleScreen extends ScreenAdapter {
     final DanceOfBlades game;
@@ -44,16 +44,16 @@ public class TitleScreen extends ScreenAdapter {
         font.draw(game.batch, "Plein Ecran", 400, 250);
         game.batch.end();
         if (Controllers.getControllers().size > 0) {
-            Controller manette = Controllers.getControllers().first();
+            Controller ctrlr = Controllers.getControllers().first();
 
-            float axeYGauche = manette.getAxis(manette.getMapping().axisLeftY);
-            float axeXGauche = manette.getAxis(manette.getMapping().axisLeftX);
+            float yAxixLeft = ctrlr.getAxis(ctrlr.getMapping().axisLeftY);
+            float xAxixLeft = ctrlr.getAxis(ctrlr.getMapping().axisLeftX);
 
-            if (Math.abs(axeYGauche) < 0.2f) lStickCenterY = true;
-            else if (lStickCenterY && axeYGauche > 0.5f) {
+            if (Math.abs(yAxixLeft) < 0.2f) lStickCenterY = true;
+            else if (lStickCenterY && yAxixLeft > 0.5f) {
                 chosenSlot++;
                 lStickCenterY = false;
-            } else if (lStickCenterY && axeYGauche < -0.5f) {
+            } else if (lStickCenterY && yAxixLeft < -0.5f) {
                 chosenSlot--;
                 lStickCenterY = false;
             }
@@ -61,16 +61,16 @@ public class TitleScreen extends ScreenAdapter {
             if (chosenSlot < 1) chosenSlot = 1;
             if (chosenSlot > 3) chosenSlot = 3;
 
-            if (Math.abs(axeXGauche) < 0.2f) lStickCenterX = true;
-            else if (lStickCenterX && axeXGauche > 0.5f) {
-                game.setScreen(new MapScreen(game));
-            } else if (lStickCenterX && axeXGauche < -0.5f) {
+            if (Math.abs(xAxixLeft) < 0.2f) lStickCenterX = true;
+            else if (lStickCenterX && xAxixLeft > 0.5f) {
+                game.setScreen(new CombatScreen(game, 120, "coolMusic"));
+            } else if (lStickCenterX && xAxixLeft < -0.5f) {
                 chosenSlot = 1;
                 lStickCenterX = false;
             }
 
-            float axeYDroit = manette.getAxis(manette.getMapping().axisRightY);
-            float axeXDroit = manette.getAxis(manette.getMapping().axisRightX);
+            float axeYDroit = ctrlr.getAxis(ctrlr.getMapping().axisRightY);
+            float axeXDroit = ctrlr.getAxis(ctrlr.getMapping().axisRightX);
 
             if (Math.abs(axeYDroit) < 0.2f) rStickCenterY = true;
             else if (rStickCenterY && axeYDroit > 0.5f) { chosenParam++; rStickCenterY = false; }
