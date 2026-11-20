@@ -7,22 +7,15 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.ScreenAdapter;
-import com.badlogic.gdx.audio.Music;
-import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.Gdx;
 
 public class CombatScreen extends ScreenAdapter {
-    Music bgm;
+    MusicManager bgm;
 
     ActionType queuedAction = ActionType.IDLE;
     float queuedTargetX = 0f;
 
     final DanceOfBlades game;
     Texture charactexture;
-
-    float bpm;
-    float beatTime;
-    float musicTimer = 0f;
 
     float actionDuration;
 
@@ -41,22 +34,30 @@ public class CombatScreen extends ScreenAdapter {
     float lStickX;
     float lStickY;
 
-    public CombatScreen(DanceOfBlades gameP, float bpmP, String musicP) {
-        this.bpm = bpmP;
-        this.bgm = Gdx.audio.newMusic(Gdx.files.internal(musicP + ".mp3"));
-        this.bgm.setLooping(true);
-        this.bgm.setVolume(0.5f);
+    public CombatScreen(DanceOfBlades gameP, String musicP) {
+        this.bgm = new MusicManager(musicP);
+        this.bgm.setVolume(0.5f, false);
         this.bgm.play();
-        this.beatTime = 60f / bpm;
         this.game = gameP;
         this.charactexture = new Texture("perso.png");
-        this.actionDuration = 0.8f * beatTime;
+        this.actionDuration = 0.8f * this.bgm.getCurrentBeatDuration();
     }
 
     @Override
     public void render(float delta) {
+        bgm.update();
         // Calcule où on en est dans le battement (de 0.0 au début, à 1.0 à la fin)
-        float pulse = musicTimer / beatTime;
+        float pulse = bgm.getPulse();
+        if (bgm.isNewBeat()) {
+            if (Controllers.getControllers().size > 0) {
+                Controller ctrlr = Controllers.getControllers().first();
+                if (ctrlr.canVibrate()) {
+                    int duration = (bgm.isMesureStart()) ? 80 : 50;
+                    float strength = (bgm.isMesureStart()) ? 0.4f : 0.15f;
+                    ctrlr.startVibration(duration, strength);
+                }
+            }
+        }
 
         // On inverse pour avoir 1.0 au moment du "boum" et 0.0 à la fin, avec une courbe douce
         float intensity = Interpolation.fade.apply(1f - pulse);
@@ -65,17 +66,9 @@ public class CombatScreen extends ScreenAdapter {
         Color bgColor = new Color(Color.SALMON).lerp(Color.WHITE, intensity);
         ScreenUtils.clear(bgColor);
 
-        manageMusic(delta);
         manageInputs();
         animateAction(delta);
         draw();
-    }
-
-    private void manageMusic(float delta) {
-        musicTimer += delta;
-        if (musicTimer >= beatTime) {
-            musicTimer -= beatTime;
-        }
     }
 
     private void manageInputs() {
@@ -104,7 +97,7 @@ public class CombatScreen extends ScreenAdapter {
         boolean outDeadzone = (actionTimer < actionDuration * 0.4f);
         boolean emptyQueue = (queuedAction == ActionType.IDLE) && outDeadzone;
 
-        boolean inCooldown = ((currentAction == ActionType.CUT || currentAction == ActionType.STEP) && actionTimer > beatTime - 0.12f);
+        boolean inCooldown = ((currentAction == ActionType.CUT || currentAction == ActionType.STEP) && actionTimer > actionDuration - 0.12f);
 
         boolean triggerValid = false;
 
@@ -136,6 +129,7 @@ public class CombatScreen extends ScreenAdapter {
             } else if (idle) {
                 startX = playerX;
                 currentAction = desiredAction;
+                actionDuration = 0.8f * bgm.getCurrentBeatDuration();
                 actionTimer = actionDuration;
                 if (currentAction != ActionType.CUT) {
                     targetX = startX + (150f * Math.signum(lStickX));
@@ -171,7 +165,7 @@ public class CombatScreen extends ScreenAdapter {
 
         switch (currentAction) {
             case THROW:
-                System.out.println("THROW");
+                //System.out.println("THROW");
                 if (progression < 0.3f) {
                     float localProg = progression / 0.3f;
                     playerX = Interpolation.pow3Out.apply(startX, targetX, localProg);
@@ -181,10 +175,10 @@ public class CombatScreen extends ScreenAdapter {
                 }
                 break;
             case CUT:
-                System.out.println("CUT");
+                //System.out.println("CUT");
                 break;
             case PARRY:
-                System.out.println("PARRY");
+                //System.out.println("PARRY");
                 if (progression < 0.5f) {
                     float localProg = progression / 0.5f;
                     playerX = Interpolation.pow3Out.apply(startX, targetX, localProg);
@@ -194,7 +188,7 @@ public class CombatScreen extends ScreenAdapter {
                 }
                 break;
             case STEP:
-                System.out.println("STEP");
+                //System.out.println("STEP");
                 playerX = Interpolation.pow2Out.apply(startX, targetX, progression);
                 break;
         }
@@ -209,6 +203,7 @@ public class CombatScreen extends ScreenAdapter {
                 startX = playerX;
                 targetX = queuedTargetX;
                 currentAction = queuedAction;
+                actionDuration = 0.8f * bgm.getCurrentBeatDuration();
                 actionTimer = actionDuration;
 
                 queuedAction = ActionType.IDLE;

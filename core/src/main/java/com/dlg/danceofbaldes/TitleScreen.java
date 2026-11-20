@@ -63,7 +63,7 @@ public class TitleScreen extends ScreenAdapter {
 
             if (Math.abs(xAxixLeft) < 0.2f) lStickCenterX = true;
             else if (lStickCenterX && xAxixLeft > 0.5f) {
-                game.setScreen(new CombatScreen(game, 160, "music1"));
+                game.setScreen(new CombatScreen(game, "Music1"));
             } else if (lStickCenterX && xAxixLeft < -0.5f) {
                 chosenSlot = 1;
                 lStickCenterX = false;
