@@ -45,7 +45,7 @@ public class CombatScreen extends ScreenAdapter {
 
     @Override
     public void render(float delta) {
-        bgm.update();
+        bgm.update(delta);
         // Calcule où on en est dans le battement (de 0.0 au début, à 1.0 à la fin)
         float pulse = bgm.getPulse();
         if (bgm.isNewBeat()) {
