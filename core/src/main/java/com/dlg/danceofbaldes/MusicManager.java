@@ -42,15 +42,8 @@ public class MusicManager {
         if (musExists && tempExists && sheetExists) musicFile = musicP;
         this.musicTrack = Gdx.audio.newMusic(Gdx.files.internal(musicFile + "_mus.ogg"));
         this.tempoTrack = Gdx.audio.newMusic(Gdx.files.internal(musicFile + "_temp.ogg"));
-        this.musicTrack.setLooping(false);
-        this.tempoTrack.setLooping(false);
-        this.musicTrack.setOnCompletionListener(music -> {
-            tempoTrack.stop();
-            currentBeatIndex = 0;
-            musicTrack.play();
-            tempoTrack.play();
-            this.resyncCooldown = 1f;
-        });
+        this.musicTrack.setLooping(true);
+        this.tempoTrack.setLooping(true);
         String introPrefix = musicFile + "_intro";
         boolean musIntroExists = Gdx.files.internal(introPrefix + "_mus.ogg").exists();
         boolean tempIntroExists = Gdx.files.internal(introPrefix + "_temp.ogg").exists();
@@ -178,6 +171,7 @@ public class MusicManager {
         if (pos < lastPosition) {
             currentBeatIndex = 0;
             newBeat = true;
+            resyncCooldown = 1f;
         }
         while ((currentBeatIndex + 1) < activeBeats.size() && pos >= activeBeats.get(currentBeatIndex + 1).time()) {
             currentBeatIndex ++;
