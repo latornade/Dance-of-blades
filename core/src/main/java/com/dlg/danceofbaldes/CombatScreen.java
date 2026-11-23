@@ -91,7 +91,7 @@ public class CombatScreen extends ScreenAdapter {
             float h = playerTex.getHeight();
             float w = playerTex.getWidth();
             boolean flipX = (actionDir < 0);
-        game.batch.draw(this.game.textures.get("perso.png"), playerX, playerY, w, h, 0, 0, w, h, flipX, false);
+        game.batch.draw(this.game.textures.get("perso.png"), playerX, playerY, w, h, w, h, flipX, false);
         game.batch.end();
     }
 
