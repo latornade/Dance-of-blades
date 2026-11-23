@@ -19,6 +19,9 @@ public class CombatScreen extends ScreenAdapter {
     ActionType queuedAction = ActionType.IDLE;
     float queuedTargetX = 0f;
 
+    float actionDir = 1f;
+    float queuedDir = 1f;
+
     final DanceOfBlades game;
 
     float actionDuration;
@@ -84,7 +87,11 @@ public class CombatScreen extends ScreenAdapter {
                     game.batch.draw(enemyTexture, enemy.getX(), enemy.getY());
                 }
             }
-        game.batch.draw(this.game.textures.get("perso.png"), playerX, playerY);
+            Texture playerTex = this.game.textures.get("perso.png");
+            float h = playerTex.getHeight();
+            float w = playerTex.getWidth();
+            boolean flipX = (actionDir < 0);
+        game.batch.draw(this.game.textures.get("perso.png"), playerX, playerY, w, h, 0, 0, w, h, flipX, false);
         game.batch.end();
     }
 
@@ -143,6 +150,7 @@ public class CombatScreen extends ScreenAdapter {
                 if (currentAction != ActionType.CUT) {
                     targetX = startX + (150f * Math.signum(lStickX));
                 }
+                if (desiredAction != ActionType.STEP) this.actionDir = Math.signum(rStickX);
             } else if (idle) {
                 startX = playerX;
                 currentAction = desiredAction;
@@ -151,6 +159,7 @@ public class CombatScreen extends ScreenAdapter {
                 if (currentAction != ActionType.CUT) {
                     targetX = startX + (150f * Math.signum(lStickX));
                 }
+                if (desiredAction != ActionType.STEP) this.queuedDir = Math.signum(rStickX);
             } else {
                 queuedAction = desiredAction;
                 float futureStartX = (currentAction == ActionType.STEP) ? targetX : startX;
@@ -179,6 +188,7 @@ public class CombatScreen extends ScreenAdapter {
 
         actionTimer -= delta;
         float progression = 1f - (actionTimer / actionDuration);
+        Math.max(0f, Math.min(1f, progression));
 
         switch (currentAction) {
             case THROW:
@@ -217,6 +227,7 @@ public class CombatScreen extends ScreenAdapter {
                 playerX = targetX;
             }
             if (queuedAction != ActionType.IDLE) {
+                if (queuedAction != ActionType.STEP) this.actionDir = this.queuedDir;
                 startX = playerX;
                 targetX = queuedTargetX;
                 currentAction = queuedAction;

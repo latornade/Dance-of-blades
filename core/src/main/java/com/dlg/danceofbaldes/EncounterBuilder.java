@@ -45,5 +45,7 @@ public class EncounterBuilder {
 
     public Encounter build() {
         if (this.enemies.isEmpty()) throw new IllegalStateException("an encounter must contain at least 1 enemy");
+        if (this.mapTexturePath == null) this.mapTexturePath = enemies.get(0).getTexturePath();
+        return new Encounter(this.mapX, this.mapY, this.mapSize, this.musicName, this.mapTexturePath, this.enemies.toArray(new Enemy[0]));
     }
 }
