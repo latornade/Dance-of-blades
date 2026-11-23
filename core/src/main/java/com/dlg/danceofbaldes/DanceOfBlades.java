@@ -8,6 +8,7 @@ import games.rednblack.miniaudio.MiniAudio;
 public class DanceOfBlades extends Game {
     public SpriteBatch batch;
     public MiniAudio miniAudio;
+    public TextureManager textures;
     private Object androidAssets = null;
 
     public DanceOfBlades() {}
@@ -18,10 +19,11 @@ public class DanceOfBlades extends Game {
 
     @Override
     public void create() {
-        batch = new SpriteBatch();
-        this.setScreen(new TitleScreen(this));
         this.miniAudio = new MiniAudio();
         if (this.androidAssets != null) miniAudio.setupAndroid(androidAssets);
+        batch = new SpriteBatch();
+        this.textures = new TextureManager();
+        this.setScreen(new TitleScreen(this));
     }
 
     @Override
@@ -33,6 +35,9 @@ public class DanceOfBlades extends Game {
     public void dispose() {
         batch.dispose();
         if (getScreen() != null) getScreen().dispose();
+        super.dispose();
+        miniAudio.dispose();
+        textures.dispose();
     }
 
     @Override

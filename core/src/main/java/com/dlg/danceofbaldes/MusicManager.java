@@ -1,7 +1,9 @@
 package com.dlg.danceofbaldes;
 
-import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.Gdx;
+
+import games.rednblack.miniaudio.MiniAudio;
+import games.rednblack.miniaudio.MASound;
 
 import com.leff.midi.event.meta.Tempo;
 import com.leff.midi.event.MidiEvent;
@@ -14,17 +16,17 @@ import java.util.ArrayList;
 import java.io.InputStream;
 
 public class MusicManager {
-    Music musicTrack;
-    Music tempoTrack;
+    MASound musicTrack;
+    MASound tempoTrack;
 
-    Music musicIntro;
-    Music tempoIntro;
+    MASound musicIntro;
+    MASound tempoIntro;
 
     ArrayList<Beat> beats = new ArrayList<>();
     ArrayList<Beat> introBeats = new ArrayList<>();
 
-    Music activeMusic;
-    Music activeTempo;
+    MASound activeMusic;
+    MASound activeTempo;
     ArrayList<Beat> activeBeats;
 
     int currentBeatIndex = 0;
@@ -34,14 +36,14 @@ public class MusicManager {
 
     boolean newBeat = false;
 
-    public MusicManager(String musicP) {
+    public MusicManager(MiniAudio miniAudio, String musicP) {
         boolean musExists = Gdx.files.internal(musicP + "_mus.ogg").exists();
         boolean tempExists = Gdx.files.internal(musicP + "_temp.ogg").exists();
         boolean sheetExists = Gdx.files.internal(musicP + "_sheet.mid").exists();
         String musicFile = "Default";
         if (musExists && tempExists && sheetExists) musicFile = musicP;
-        this.musicTrack = Gdx.audio.newMusic(Gdx.files.internal(musicFile + "_mus.ogg"));
-        this.tempoTrack = Gdx.audio.newMusic(Gdx.files.internal(musicFile + "_temp.ogg"));
+        this.musicTrack = miniAudio.createSound(musicFile + "_mus.ogg");
+        this.tempoTrack = miniAudio.createSound(musicFile + "_temp.ogg");
         this.musicTrack.setLooping(true);
         this.tempoTrack.setLooping(true);
         String introPrefix = musicFile + "_intro";
@@ -49,23 +51,13 @@ public class MusicManager {
         boolean tempIntroExists = Gdx.files.internal(introPrefix + "_temp.ogg").exists();
         boolean sheetIntroExists = Gdx.files.internal(introPrefix + "_sheet.mid").exists();
         if (musIntroExists && tempIntroExists && sheetIntroExists) {
-            this.musicIntro = Gdx.audio.newMusic(Gdx.files.internal(introPrefix + "_mus.ogg"));
-            this.tempoIntro = Gdx.audio.newMusic(Gdx.files.internal(introPrefix + "_temp.ogg"));
+            this.musicIntro = miniAudio.createSound(introPrefix + "_mus.ogg");
+            this.tempoIntro = miniAudio.createSound(introPrefix + "_temp.ogg");
             this.musicIntro.setLooping(false);
             this.tempoIntro.setLooping(false);
             this.activeMusic = musicIntro;
             this.activeTempo = tempoIntro;
             this.activeBeats = introBeats;
-            this.musicIntro.setOnCompletionListener(music -> {
-                this.tempoIntro.stop();
-                this.activeMusic = musicTrack;
-                this.activeTempo = tempoTrack;
-                this.activeBeats = beats;
-                this.currentBeatIndex = 0;
-                this.resyncCooldown = 1f;
-                activeMusic.play();
-                activeTempo.play();
-            });
             loadMidi(introPrefix, introBeats);
         } else {
             this.activeMusic = musicTrack;
@@ -109,7 +101,7 @@ public class MusicManager {
     }
 
     public float getPosition() {
-        return this.activeMusic.getPosition();
+        return this.activeMusic.getCursorPosition();
     }
 
     private void loadMidi(String musicP, ArrayList<Beat> beatsP) {
@@ -154,16 +146,28 @@ public class MusicManager {
     public void update(float delta) {
         if (resyncCooldown > 0) resyncCooldown -= delta;
         newBeat = false;
-        float deSync = Math.abs(this.activeMusic.getPosition() - this.activeTempo.getPosition());
+        float deSync = Math.abs(this.activeMusic.getCursorPosition() - this.activeTempo.getCursorPosition());
+
+        if (this.activeMusic == this.musicIntro && this.musicIntro.isEnd()) {
+            this.tempoIntro.stop();
+            this.activeMusic = this.musicTrack;
+            this.activeTempo = this.tempoTrack;
+            this.activeBeats = this.beats;
+            this.currentBeatIndex = 0;
+            this.resyncCooldown = 1f;
+            this.newBeat = true;
+            this.activeMusic.play();
+            this.activeTempo.play();
+        }
 
         if (activeMusic.isPlaying() && !activeTempo.isPlaying() && resyncCooldown <= 0f) {
             this.activeTempo.play();
-            this.activeTempo.setPosition(this.activeMusic.getPosition());
+            this.activeTempo.seekTo(this.activeMusic.getCursorPosition());
             this.resyncCooldown = 1f;
         }
 
-        if (deSync > 0.05f && resyncCooldown <= 0f) {
-            this.activeTempo.setPosition(this.activeMusic.getPosition());
+        if (deSync > 0.05f && resyncCooldown <= 0f && deSync < 2f) {
+            this.activeTempo.seekTo(this.activeMusic.getCursorPosition());
             resyncCooldown = 1f;
         }
         if (activeBeats.isEmpty()) return;

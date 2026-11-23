@@ -12,9 +12,9 @@ public class TitleScreen extends ScreenAdapter {
 
     BitmapFont font;
 
-    int chosenSlot;
+    int chosenSlot = 1;
 
-    int chosenParam;
+    int chosenParam = 1;
 
     boolean lStickCenterX;
     boolean lStickCenterY;
@@ -63,7 +63,10 @@ public class TitleScreen extends ScreenAdapter {
 
             if (Math.abs(xAxixLeft) < 0.2f) lStickCenterX = true;
             else if (lStickCenterX && xAxixLeft > 0.5f) {
-                game.setScreen(new CombatScreen(game, "Default"));
+                game.setScreen(new MapScreen(game));
+                this.dispose();
+                return;
+
             } else if (lStickCenterX && xAxixLeft < -0.5f) {
                 chosenSlot = 1;
                 lStickCenterX = false;
@@ -88,5 +91,11 @@ public class TitleScreen extends ScreenAdapter {
                 rStickCenterX = false;
             }
         }
+    }
+
+    @Override
+    public void dispose() {
+        super.dispose();
+        font.dispose();
     }
 }

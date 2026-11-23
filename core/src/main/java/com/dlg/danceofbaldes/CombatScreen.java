@@ -8,14 +8,18 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.ScreenAdapter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class CombatScreen extends ScreenAdapter {
     MusicManager bgm;
+
+    Color bgColor = new Color();
 
     ActionType queuedAction = ActionType.IDLE;
     float queuedTargetX = 0f;
 
     final DanceOfBlades game;
-    Texture charactexture;
 
     float actionDuration;
 
@@ -34,13 +38,18 @@ public class CombatScreen extends ScreenAdapter {
     float lStickX;
     float lStickY;
 
-    public CombatScreen(DanceOfBlades gameP, String musicP) {
-        this.bgm = new MusicManager(musicP);
+    Encounter encounter;
+
+    final MapScreen returnScreen;
+
+    public CombatScreen(DanceOfBlades gameP, MapScreen returnScreen, Encounter encounterP) {
+        this.game = gameP;
+        this.bgm = new MusicManager(game.miniAudio, encounterP.musicName);
         this.bgm.setVolume(0.5f, false);
         this.bgm.play();
-        this.game = gameP;
-        this.charactexture = new Texture("perso.png");
         this.actionDuration = 0.8f * this.bgm.getCurrentBeatDuration();
+        encounter = encounterP;
+        this.returnScreen = returnScreen;
     }
 
     @Override
@@ -63,12 +72,20 @@ public class CombatScreen extends ScreenAdapter {
         float intensity = Interpolation.fade.apply(1f - pulse);
 
         // On crée une couleur qui va du Blanc (sur le beat) au Saumon (entre les beats)
-        Color bgColor = new Color(Color.SALMON).lerp(Color.WHITE, intensity);
+        bgColor.set(Color.SALMON).lerp(Color.WHITE, intensity);
         ScreenUtils.clear(bgColor);
 
         manageInputs();
         animateAction(delta);
-        draw();
+        game.batch.begin();
+            for (Enemy enemy : encounter.enemies) {
+                if (enemy.isAlive()) {
+                    Texture enemyTexture = game.textures.get(enemy.getTexturePath());
+                    game.batch.draw(enemyTexture, enemy.getX(), enemy.getY());
+                }
+            }
+        game.batch.draw(this.game.textures.get("perso.png"), playerX, playerY);
+        game.batch.end();
     }
 
     private void manageInputs() {
@@ -213,15 +230,8 @@ public class CombatScreen extends ScreenAdapter {
         }
     }
 
-    private void draw() {
-        game.batch.begin();
-        game.batch.draw(charactexture, playerX, playerY);
-        game.batch.end();
-    }
-
     @Override
     public void dispose() {
-        charactexture.dispose();
         bgm.dispose();
         super.dispose();
     }
