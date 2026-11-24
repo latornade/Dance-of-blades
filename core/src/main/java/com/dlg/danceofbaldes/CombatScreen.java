@@ -12,7 +12,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CombatScreen extends ScreenAdapter {
+    Sword sword;
     MusicManager bgm;
+
+    float actionProgression = 0f;
 
     Color bgColor = new Color();
 
@@ -53,6 +56,7 @@ public class CombatScreen extends ScreenAdapter {
         this.actionDuration = 0.8f * this.bgm.getCurrentBeatDuration();
         encounter = encounterP;
         this.returnScreen = returnScreen;
+        sword = new Sword(game);
     }
 
     @Override
@@ -80,6 +84,10 @@ public class CombatScreen extends ScreenAdapter {
 
         manageInputs();
         animateAction(delta);
+        Texture playerTex = game.textures.get("perso.png");
+        float anchorX = playerX + (playerTex.getWidth() / 2f);
+        float anchorY = playerY + (playerTex.getHeight() / 2f);
+        sword.update(anchorX, anchorY, currentAction, actionProgression, actionDir);
         game.batch.begin();
             for (Enemy enemy : encounter.enemies) {
                 if (enemy.isAlive()) {
@@ -87,11 +95,11 @@ public class CombatScreen extends ScreenAdapter {
                     game.batch.draw(enemyTexture, enemy.getX(), enemy.getY());
                 }
             }
-            Texture playerTex = this.game.textures.get("perso.png");
             int h = playerTex.getHeight();
             int w = playerTex.getWidth();
             boolean flipX = (actionDir < 0);
         game.batch.draw(this.game.textures.get("perso.png"), playerX, playerY, w, h, 0, 0,  w, h, flipX, false);
+        sword.draw(game.batch);
         game.batch.end();
     }
 
@@ -159,9 +167,10 @@ public class CombatScreen extends ScreenAdapter {
                 if (currentAction != ActionType.CUT) {
                     targetX = startX + (150f * Math.signum(lStickX));
                 }
-                if (desiredAction != ActionType.STEP) this.queuedDir = Math.signum(rStickX);
+                if (desiredAction != ActionType.STEP) this.actionDir = Math.signum(rStickX);
             } else {
                 queuedAction = desiredAction;
+                if (desiredAction != ActionType.STEP) queuedDir = Math.signum(rStickX);
                 float futureStartX = (currentAction == ActionType.STEP) ? targetX : startX;
                 switch (queuedAction) {
                     case PARRY :
@@ -184,20 +193,23 @@ public class CombatScreen extends ScreenAdapter {
     }
 
     private void animateAction(float delta) {
-        if (currentAction == ActionType.IDLE) return;
+        if (currentAction == ActionType.IDLE) {
+            actionProgression = 0f;
+            return;
+        }
 
         actionTimer -= delta;
-        float progression = 1f - (actionTimer / actionDuration);
-        Math.max(0f, Math.min(1f, progression));
+        actionProgression = 1f - (actionTimer / actionDuration);
+        actionProgression = Math.max(0f, Math.min(1f, actionProgression));
 
         switch (currentAction) {
             case THROW:
                 //System.out.println("THROW");
-                if (progression < 0.3f) {
-                    float localProg = progression / 0.3f;
+                if (actionProgression < 0.3f) {
+                    float localProg = actionProgression / 0.3f;
                     playerX = Interpolation.pow3Out.apply(startX, targetX, localProg);
                 } else {
-                    float localProg = (progression - 0.3f) / 0.7f;
+                    float localProg = (actionProgression - 0.3f) / 0.7f;
                     playerX = Interpolation.pow2Out.apply(targetX, startX, localProg);
                 }
                 break;
@@ -206,21 +218,22 @@ public class CombatScreen extends ScreenAdapter {
                 break;
             case PARRY:
                 //System.out.println("PARRY");
-                if (progression < 0.5f) {
-                    float localProg = progression / 0.5f;
+                if (actionProgression < 0.5f) {
+                    float localProg = actionProgression / 0.5f;
                     playerX = Interpolation.pow3Out.apply(startX, targetX, localProg);
                 } else {
-                    float localProg = (progression - 0.5f) / 0.5f;
+                    float localProg = (actionProgression - 0.5f) / 0.5f;
                     playerX = Interpolation.pow2Out.apply(targetX, startX, localProg);
                 }
                 break;
             case STEP:
                 //System.out.println("STEP");
-                playerX = Interpolation.pow2Out.apply(startX, targetX, progression);
+                playerX = Interpolation.pow2Out.apply(startX, targetX, actionProgression);
                 break;
         }
 
         if (actionTimer <= 0) {
+            this.actionProgression = 0f;
             if (currentAction == ActionType.THROW || currentAction == ActionType.PARRY) {
                 playerX = startX;
             } else if (currentAction == ActionType.STEP) {
